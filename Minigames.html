@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Financial Games for Teens</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fc;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    .game {
+      display: none;
+      margin-top: 20px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background-color: #3498db;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid #ccc;
+      padding: 10px 15px;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      min-width: 100px;
+      transition: all 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .selected {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-weight: bold;
+      min-height: 24px;
+    }
+
+    .input-group {
+      margin: 10px 0;
+    }
+
+    input[type=number], input[type=text] {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin: 5px;
+    }
+
+    .game-complete {
+      color: #27ae60;
+    }
+
+    .balance-bar {
+      width: 100%;
+      height: 20px;
+      background: #eee;
+      margin: 10px auto;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .balance-fill {
+      height: 100%;
+      width: 0;
+      background: #2ecc71;
+      transition: width 0.3s;
+    }
+
+    .memory-card {
+    width: 120px;
+    height: 120px;
+    background: #3498db;
+    border: 3px solid #2980b9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.6s ease;
+    perspective: 1000px;
+    position: relative;
+    transform-style: preserve-3d;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .memory-card::before {
+    content: "💳";
+    font-size: 40px;
+    position: absolute;
+    opacity: 0.2;
+  }
+
+
+  .memory-card.flipped {
+    transform: rotateY(180deg);
+    background: #f8f9fa;
+  }
+
+  .memory-card.matched {
+    background: #2ecc71;
+    color: white;
+    border-color: #27ae60;
+    transform: rotateY(180deg);
+    cursor: default;
+  }
+
+
+  .memory-card .front,
+  .memory-card .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow: hidden;
+  }
+
+  .memory-card .front {
+    background: #3498db;
+    color: white;
+    font-size: 24px;
+    transform: rotateY(0deg);
+    z-index: 2;
+  }
+
+  .memory-card .back {
+    background: white;
+    color: #2c3e50;
+    transform: rotateY(180deg);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      justify-content: center;
+      margin: 20px auto;
+      max-width: 600px;
+    }
+
+    .memory-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 0 20px;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+
+    .memory-stats {
+      display: flex;
+      gap: 20px;
+    }
+
+    .memory-stat {
+      background: #3498db;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    .memory-feedback {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px auto;
+      max-width: 600px;
+      border-left: 5px solid #3498db;
+    }
+
+    .memory-timer {
+      font-size: 18px;
+      color: #e74c3c;
+      font-weight: bold;
+      background: #f8f9fa;
+      padding: 8px 15px;
+      border-radius: 20px;
+    }
+
+    .stock-chart {
+      width: 100%;
+      height: 200px;
+      background: white;
+      border: 1px solid #ddd;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .chart-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      background: #3498db;
+    }
+
+    .chart-point {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #e74c3c;
+      border-radius: 50%;
+      transform: translate(-4px, -4px);
+    }
+
+    .loan-calculator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    .loan-inputs {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .loan-input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .investment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .investment-card {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .investment-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .investment-card.selected {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .score-display {
+      font-size: 24px;
+      margin: 20px 0;
+      color: #2c3e50;
+    }
+
+    .timer {
+      font-size: 18px;
+      color: #e74c3c;
+      margin-bottom: 10px;
+    }
+
+    .difficulty-selector {
+      margin: 20px 0;
+    }
+
+    .difficulty-btn {
+      padding: 8px 15px;
+      margin: 0 5px;
+      background-color: #bdc3c7;
+    }
+
+    .difficulty-btn.active {
+      background-color: #3498db;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>💸 Financial Games for Teens</h1>
+  <p>Learn money skills through fun challenges!</p>
+
+  <div class="difficulty-selector">
+    <button class="difficulty-btn active" onclick="setDifficulty('easy')">Easy</button>
+    <button class="difficulty-btn" onclick="setDifficulty('medium')">Medium</button>
+    <button class="difficulty-btn" onclick="setDifficulty('hard')">Hard</button>
+  </div>
+
+  <div id="menu">
+    <button onclick="showGame('budget')">💰 Budget Balance</button>
+    <button onclick="showGame('needs')">🧠 Needs vs Wants</button>
+    <button onclick="showGame('savings')">🚀 Savings Goal</button>
+    <button onclick="showGame('memory')">🧩 Finance Memory</button>
+    <button onclick="showGame('stock')">📈 Stock Market Sim</button>
+    <button onclick="showGame('loan')">🏦 Loan Calculator</button>
+    <button onclick="showGame('investment')">💹 Investment Risk</button>
+    <button onclick="showGame('quiz')">📝 Financial Quiz</button>
+  </div>
+
+  <!-- Budget Balance Game -->
+  <div id="budget" class="game">
+    <h2>📊 Budget Balance Challenge</h2>
+    <p id="budgetIncomeText"></p>
+    <div class="options" id="budgetOptions"></div>
+    <div class="balance-bar"><div id="balanceFill" class="balance-fill"></div></div>
+    <div class="feedback" id="budgetFeedback"></div>
+    <div class="timer" id="budgetTimer">Time: 60s</div>
+    <button onclick="startBudgetGame()">Retry</button>
+  </div>
+
+  <!-- Needs vs Wants Game -->
+  <div id="needs" class="game">
+    <h2>🧠 Needs vs Wants Showdown</h2>
+    <p>Click each item and choose if it's a <strong>Need</strong> or <strong>Want</strong>.</p>
+    <div class="options" id="needsItems"></div>
+    <div class="feedback" id="needsFeedback"></div>
+    <div class="score-display" id="needsScore">Score: 0</div>
+    <button onclick="startNeedsGame()">Retry</button>
+  </div>
+
+  <!-- Savings Goal Game -->
+  <div id="savings" class="game">
+    <h2>🚀 Savings Goal Accelerator</h2>
+    <p>You want to buy <span id="savingsItem">a new bike</span> for $<span id="savingsGoal">300</span>. 
+      How many weeks will it take if you save $<input type="number" id="weeklySave" value="20" min="1"> per week?</p>
+    <button onclick="checkSavings()">Check</button>
+    <div class="feedback" id="savingsFeedback"></div>
+    <div class="hidden" id="savingsAdvanced">
+      <p>Now account for interest! Your savings earn 5% annually. How does this change your timeline?</p>
+      <button onclick="calculateWithInterest()">Calculate with Interest</button>
+      <div class="feedback" id="interestFeedback"></div>
+    </div>
+  </div>
+
+  <!-- Memory Game -->
+  <div id="memory" class="game">
+    <h2>🧩 Financial Memory Match</h2>
+    <p>Match financial terms with their definitions!</p>
+    
+    <div class="memory-header">
+      <div class="memory-stats">
+        <div class="memory-stat">Matches: <span id="memoryMatches">0</span>/<span id="totalPairs">0</span></div>
+        <div class="memory-stat">Moves: <span id="memoryMoves">0</span></div>
+      </div>
+      <div class="memory-timer" id="memoryTimer">Time: 90s</div>
+    </div>
+    
+    <div class="memory-grid" id="memoryGrid"></div>
+    
+    <div class="memory-feedback" id="memoryFeedback"></div>
+    
+    <button onclick="startMemoryGame()">Retry</button>
+  </div>
+
+
+  <!-- Stock Market Simulator -->
+  <div id="stock" class="game">
+    <h2>📈 Stock Market Simulator</h2>
+    <p>Buy low, sell high! You have $<span id="stockCash">1000</span> to invest.</p>
+    <div class="stock-chart" id="stockChart">
+      <div class="chart-line" id="chartLine"></div>
+    </div>
+    <div>
+      <button onclick="stockAction('buy')">Buy</button>
+      <button onclick="stockAction('sell')">Sell</button>
+      <button onclick="stockAction('hold')">Hold</button>
+    </div>
+    <div class="feedback" id="stockFeedback"></div>
+    <div class="score-display">
+      Shares: <span id="stockShares">0</span> | 
+      Value: $<span id="stockValue">0</span> | 
+      Profit: $<span id="stockProfit">0</span>
+    </div>
+    <button onclick="startStockGame()">New Game</button>
+  </div>
+
+  <!-- Loan Calculator -->
+  <div id="loan" class="game">
+    <h2>🏦 Loan Calculator Challenge</h2>
+    <p>Calculate monthly payments for different loan scenarios.</p>
+    <div class="loan-calculator">
+      <div class="loan-inputs">
+        <div class="loan-input-group">
+          <label for="loanAmount">Loan Amount ($)</label>
+          <input type="number" id="loanAmount" value="10000" min="1000" step="1000">
+        </div>
+        <div class="loan-input-group">
+          <label for="loanTerm">Term (years)</label>
+          <input type="number" id="loanTerm" value="5" min="1" max="30">
+        </div>
+        <div class="loan-input-group">
+          <label for="interestRate">Interest Rate (%)</label>
+          <input type="number" id="interestRate" value="5" min="1" max="20" step="0.5">
+        </div>
+      </div>
+      <button onclick="calculateLoan()">Calculate Payment</button>
+      <div class="feedback" id="loanFeedback"></div>
+    </div>
+    <div class="hidden" id="loanChallenge">
+      <p>Can you adjust the loan terms to get a monthly payment under $<span id="targetPayment">200</span>?</p>
+      <button onclick="checkLoanChallenge()">Check Solution</button>
+      <div class="feedback" id="loanChallengeFeedback"></div>
+    </div>
+    <button onclick="startLoanGame()">New Challenge</button>
+  </div>
+
+  <!-- Investment Risk Game -->
+  <div id="investment" class="game">
+    <h2>💹 Investment Risk Roulette</h2>
+    <p>Choose investments based on risk tolerance. You have $10,000 to allocate.</p>
+    <div class="investment-grid" id="investmentOptions"></div>
+    <div class="feedback" id="investmentFeedback"></div>
+    <div class="score-display">
+      Total Allocated: $<span id="allocatedAmount">0</span>/10,000 | 
+      Expected Return: <span id="expectedReturn">0</span>%
+    </div>
+    <button onclick="evaluateInvestments()">Simulate Returns</button>
+    <button onclick="startInvestmentGame()">Reset</button>
+  </div>
+
+  <!-- Financial Quiz -->
+  <div id="quiz" class="game">
+    <h2>📝 Financial Literacy Quiz</h2>
+    <p>Test your knowledge with these financial questions!</p>
+    <div id="quizQuestion"></div>
+    <div class="options" id="quizOptions"></div>
+    <div class="feedback" id="quizFeedback"></div>
+    <div class="score-display">
+      Score: <span id="quizScore">0</span>/10 | 
+      Time: <span id="quizTimer">60</span>s
+    </div>
+    <button onclick="nextQuestion()" id="nextBtn" class="hidden">Next Question</button>
+    <button onclick="startQuizGame()">Start Quiz</button>
+  </div>
+
+  <script>
+    let currentDifficulty = 'easy';
+    let gameTimers = {};
+    
+    function setDifficulty(difficulty) {
+      currentDifficulty = difficulty;
+      document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.toLowerCase().includes(difficulty)) {
+          btn.classList.add('active');
+        }
+      });
+      
+      // Restart current game if any is active
+      const activeGame = document.querySelector('.game[style="display: block;"]');
+      if (activeGame) {
+        const gameId = activeGame.id;
+        showGame(gameId);
+      }
+    }
+
+    function showGame(id) {
+      document.querySelectorAll('.game').forEach(g => g.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+      
+      // Clear any existing timers
+      if (gameTimers[id]) {
+        clearInterval(gameTimers[id]);
+      }
+      
+      if (id === 'budget') startBudgetGame();
+      if (id === 'needs') startNeedsGame();
+      if (id === 'savings') startSavingsGame();
+      if (id === 'memory') startMemoryGame();
+      if (id === 'stock') startStockGame();
+      if (id === 'loan') startLoanGame();
+      if (id === 'investment') startInvestmentGame();
+      if (id === 'quiz') startQuizGame();
+    }
+
+    // Budget Balance Game - Enhanced
+    const baseExpenses = [
+      { item: "Groceries (Must Pick)", cost: 100, mustPick: true },
+      { item: "Rent (Must Pick)", cost: 200, mustPick: true },
+      { item: "Phone Bill", cost: 50 },
+      { item: "Snacks", cost: 20 },
+      { item: "Bus Pass", cost: 60 },
+      { item: "Gaming Subscription", cost: 80 },
+      { item: "Clothes", cost: 90 },
+      { item: "Books", cost: 100 },
+      { item: "Savings", cost: 100 }
+    ];
+
+    const surpriseExpenses = [
+      { item: "Emergency Vet Bill", cost: 75 },
+      { item: "Birthday Gift", cost: 40 },
+      { item: "Bike Repair", cost: 60 },
+      { item: "Medical Bill", cost: 120 },
+      { item: "Car Insurance", cost: 150 }
+    ];
+
+    function startBudgetGame() {
+      let income;
+      switch(currentDifficulty) {
+        case 'easy': income = 500; break;
+        case 'medium': income = 450; break;
+        case 'hard': income = 400; break;
+      }
+      
+      document.getElementById("budgetIncomeText").textContent = `Pick expenses to match your income: $${income}`;
+
+      const options = [...baseExpenses];
+      // Add more surprise expenses on higher difficulty
+      if (currentDifficulty === 'medium') options.push(surpriseExpenses[Math.floor(Math.random() * surpriseExpenses.length)]);
+      if (currentDifficulty === 'hard') options.push(...surpriseExpenses.slice(0, 2));
+
+      const container = document.getElementById("budgetOptions");
+      container.innerHTML = '';
+      document.getElementById("budgetFeedback").textContent = '';
+      document.getElementById("balanceFill").style.width = '0';
+
+      let selected = [];
+      let timeLeft = 60;
+      document.getElementById("budgetTimer").textContent = `Time: ${timeLeft}s`;
+      
+      // Start timer
+      gameTimers['budget'] = setInterval(() => {
+        timeLeft--;
+        document.getElementById("budgetTimer").textContent = `Time: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(gameTimers['budget']);
+          document.getElementById("budgetFeedback").textContent = "⏰ Time's up! Try again.";
+        }
+      }, 1000);
+
+      options.forEach((exp, i) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.textContent = `${exp.item} - $${exp.cost}`;
+
+        if (exp.mustPick) {
+          div.classList.add('selected');
+          selected.push(i);
+        }
+
+        div.onclick = () => {
+          if (exp.mustPick) return;
+          div.classList.toggle("selected");
+          if (selected.includes(i)) {
+            selected = selected.filter(x => x !== i);
+          } else {
+            selected.push(i);
+          }
+          updateBudget();
+        };
+        container.appendChild(div);
+      });
+
+      function updateBudget() {
+        let total = selected.reduce((sum, idx) => sum + options[idx].cost, 0);
+        let percent = Math.min((total / income) * 100, 100);
+        document.getElementById("balanceFill").style.width = percent + '%';
+        
+        if (total === income) {
+          document.getElementById("budgetFeedback").textContent = "🎉 Perfect Balance! You've matched your income.";
+          document.getElementById("budgetFeedback").style.color = "#27ae60";
+          clearInterval(gameTimers['budget']);
+        } else if (total > income) {
+          document.getElementById("budgetFeedback").textContent = `🚨 Overspending by $${total - income}!`;
+          document.getElementById("budgetFeedback").style.color = "#e74c3c";
+        } else {
+          document.getElementById("budgetFeedback").textContent = `💡 $${income - total} remaining. Keep selecting.`;
+          document.getElementById("budgetFeedback").style.color = "#3498db";
+        }
+      }
+
+      updateBudget();
+    }
+
+    // Needs vs Wants Game - Enhanced
+    const needsWantsItems = [
+      { name: "Water", type: "Need" },
+      { name: "New Phone", type: "Want" },
+      { name: "Medicine", type: "Need" },
+      { name: "Concert Ticket", type: "Want" },
+      { name: "Groceries", type: "Need" },
+      { name: "Sneakers (extra pair)", type: "Want" },
+      { name: "Health Insurance", type: "Need" },
+      { name: "Designer Jeans", type: "Want" },
+      { name: "Public Transport", type: "Need" },
+      { name: "Taxi Ride", type: "Want" }
+    ];
+
+    function startNeedsGame() {
+      const container = document.getElementById("needsItems");
+      const feedback = document.getElementById("needsFeedback");
+      const scoreDisplay = document.getElementById("needsScore");
+      container.innerHTML = '';
+      feedback.textContent = '';
+      scoreDisplay.textContent = 'Score: 0';
+      
+      let items = [...needsWantsItems];
+      if (currentDifficulty === 'easy') items = items.slice(0, 6);
+      if (currentDifficulty === 'medium') items = items.slice(0, 8);
+      
+      // Shuffle items
+      items = items.sort(() => 0.5 - Math.random());
+      
+      let correct = 0;
+      let attempts = 0;
+
+      items.forEach((item, i) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.textContent = item.name;
+        div.onclick = () => {
+          if (div.style.background) return; // Already answered
+          
+          const guess = prompt(`Is "${item.name}" a Need or a Want?`);
+          if (!guess) return;
+          
+          attempts++;
+          if (guess.toLowerCase() === item.type.toLowerCase()) {
+            div.style.background = "#2ecc71";
+            correct++;
+          } else {
+            div.style.background = "#e74c3c";
+          }
+          
+          scoreDisplay.textContent = `Score: ${Math.round((correct / attempts) * 100)}%`;
+          div.onclick = null;
+          
+          if (attempts === items.length) {
+            const percentage = Math.round((correct / attempts) * 100);
+            let message = "";
+            if (percentage >= 90) message = "🎯 Expert Level! You nailed it!";
+            else if (percentage >= 70) message = "👍 Good job! You understand most needs vs wants.";
+            else message = "💡 Keep practicing! Review your mistakes.";
+            
+            feedback.innerHTML = `${message} Final Score: ${percentage}%`;
+          }
+        };
+        container.appendChild(div);
+      });
+    }
+
+    // Savings Goal Game - Enhanced
+    function startSavingsGame() {
+      const items = [
+        { name: "a new bike", cost: 300 },
+        { name: "a gaming console", cost: 500 },
+        { name: "a laptop", cost: 800 },
+        { name: "a smartphone", cost: 600 }
+      ];
+      
+      const selectedItem = items[Math.floor(Math.random() * items.length)];
+      document.getElementById("savingsItem").textContent = selectedItem.name;
+      document.getElementById("savingsGoal").textContent = selectedItem.cost;
+      document.getElementById("savingsFeedback").textContent = '';
+      document.getElementById("interestFeedback").textContent = '';
+      document.getElementById("savingsAdvanced").classList.add('hidden');
+    }
+
+    function checkSavings() {
+      const weekly = parseInt(document.getElementById("weeklySave").value);
+      const goal = parseInt(document.getElementById("savingsGoal").textContent);
+      const weeks = Math.ceil(goal / weekly);
+      
+      document.getElementById("savingsFeedback").innerHTML = 
+        `You'll need about <strong>${weeks}</strong> week(s) to buy ${document.getElementById("savingsItem").textContent}.`;
+      
+      document.getElementById("savingsAdvanced").classList.remove('hidden');
+    }
+
+    function calculateWithInterest() {
+      const weekly = parseInt(document.getElementById("weeklySave").value);
+      const goal = parseInt(document.getElementById("savingsGoal").textContent);
+      const annualRate = 0.05; // 5%
+      const weeklyRate = annualRate / 52;
+      
+      let balance = 0;
+      let weeks = 0;
+      
+      while (balance < goal) {
+        weeks++;
+        balance = (balance + weekly) * (1 + weeklyRate);
+      }
+      
+      document.getElementById("interestFeedback").innerHTML = 
+        `With 5% annual interest, you'll reach your goal in <strong>${weeks}</strong> weeks!`;
+    }
+
+    // Memory Game - Enhanced
+    const memoryPairs = [
+      { text: "Save", pair: "Setting aside money for future use" },
+      { text: "Spend", pair: "Using money to buy goods/services" },
+      { text: "Invest", pair: "Putting money into assets to grow wealth" },
+      { text: "Budget", pair: "A plan for managing income and expenses" },
+      { text: "Interest", pair: "Cost of borrowing or earnings from saving" },
+      { text: "Credit", pair: "Borrowing money to be repaid later" },
+      { text: "Debt", pair: "Money owed to another party" },
+      { text: "Asset", pair: "Something of value that you own" }
+    ];
+
+    function startMemoryGame() {
+    const grid = document.getElementById("memoryGrid");
+    grid.innerHTML = '';
+    document.getElementById("memoryFeedback").textContent = '';
+    document.getElementById("memoryMatches").textContent = '0';
+    document.getElementById("memoryMoves").textContent = '0';
+    
+    let pairsToUse = [...memoryPairs];
+    if (currentDifficulty === 'easy') pairsToUse = pairsToUse.slice(0, 4);
+    if (currentDifficulty === 'medium') pairsToUse = pairsToUse.slice(0, 6);
+    
+    document.getElementById("totalPairs").textContent = pairsToUse.length;
+    
+    let cards = [];
+    pairsToUse.forEach(p => {
+      cards.push({ text: p.text, pair: p.pair, matched: false });
+      cards.push({ text: p.pair, pair: p.text, matched: false });
+    });
+
+    cards = cards.sort(() => 0.5 - Math.random());
+
+    let opened = [];
+    let matched = 0;
+    let moves = 0;
+    let timeLeft = currentDifficulty === 'hard' ? 60 : 90;
+    document.getElementById("memoryTimer").textContent = `Time: ${timeLeft}s`;
+    
+    // Start timer
+    if (gameTimers['memory']) clearInterval(gameTimers['memory']);
+    gameTimers['memory'] = setInterval(() => {
+      timeLeft--;
+      document.getElementById("memoryTimer").textContent = `Time: ${timeLeft}s`;
+      if (timeLeft <= 0) {
+        clearInterval(gameTimers['memory']);
+        document.getElementById("memoryFeedback").textContent = "⏰ Time's up! Try again.";
+        // Disable all cards
+        document.querySelectorAll('.memory-card').forEach(card => {
+          card.onclick = null;
+        });
+      }
+    }, 1000);
+
+    cards.forEach((card, i) => {
+      const div = document.createElement("div");
+      div.className = "memory-card";
+      div.dataset.index = i;
+      
+      const front = document.createElement("div");
+      front.className = "front";
+      front.textContent = "?";
+      div.appendChild(front);
+      
+      const back = document.createElement("div");
+      back.className = "back";
+      back.textContent = card.text;
+      div.appendChild(back);
+      
+      div.onclick = function() {
+        if (timeLeft <= 0) return;
+        if (this.classList.contains('flipped') || opened.length === 2 || card.matched) return;
+        
+        this.classList.add('flipped');
+        opened.push({ card, div: this });
+        moves++;
+        document.getElementById("memoryMoves").textContent = moves;
+        
+        if (opened.length === 2) {
+          if (opened[0].card.pair === opened[1].card.text) {
+            opened.forEach(o => {
+              o.div.classList.add('matched');
+              cards[o.div.dataset.index].matched = true;
+            });
+            matched++;
+            document.getElementById("memoryMatches").textContent = matched;
+            
+            if (matched === pairsToUse.length) {
+              clearInterval(gameTimers['memory']);
+              const timeBonus = Math.floor(timeLeft * 5);
+              const moveBonus = Math.floor((50 - moves) * 2);
+              const totalScore = 100 + timeBonus + moveBonus;
+              
+              document.getElementById("memoryFeedback").innerHTML = 
+                `🎉 Perfect! All matched!<br>
+                 Time bonus: +${timeBonus} points<br>
+                 Move bonus: +${moveBonus} points<br>
+                 <strong>Total Score: ${totalScore}</strong>`;
+            }
+            opened = [];
+          } else {
+            setTimeout(() => {
+              opened.forEach(o => o.div.classList.remove('flipped'));
+              opened = [];
+            }, 1000);
+          }
+        }
+      };
+      grid.appendChild(div);
+    });
+  }
+
+
+    // Stock Market Simulator
+    let stockData = [];
+    let stockGameState = {
+      cash: 1000,
+      shares: 0,
+      sharePrice: 0,
+      history: []
+    };
+
+    function startStockGame() {
+      stockData = generateStockData();
+      stockGameState = {
+        cash: 1000,
+        shares: 0,
+        sharePrice: stockData[0],
+        history: []
+      };
+      
+      updateStockDisplay();
+      renderStockChart();
+    }
+
+    function generateStockData() {
+      const days = 30;
+      const data = [50]; // Starting price
+      
+      for (let i = 1; i < days; i++) {
+        // More volatility on higher difficulty
+        let volatility = currentDifficulty === 'easy' ? 0.05 : 
+                        currentDifficulty === 'medium' ? 0.1 : 0.15;
+                        
+        const change = (Math.random() * 2 - 1) * volatility * data[i-1];
+        data.push(Math.max(10, Math.min(100, data[i-1] + change)));
+      }
+      
+      return data;
+    }
+
+    function renderStockChart() {
+      const chart = document.getElementById("stockChart");
+      chart.innerHTML = '';
+      
+      const line = document.createElement("div");
+      line.className = "chart-line";
+      line.id = "chartLine";
+      chart.appendChild(line);
+      
+      const maxPrice = Math.max(...stockData);
+      const minPrice = Math.min(...stockData);
+      const range = maxPrice - minPrice;
+      
+      stockData.forEach((price, i) => {
+        const point = document.createElement("div");
+        point.className = "chart-point";
+        
+        // Position point based on price
+        const yPos = ((maxPrice - price) / range) * 180 + 10;
+        const xPos = (i / (stockData.length - 1)) * 100;
+        
+        point.style.left = `${xPos}%`;
+        point.style.top = `${yPos}px`;
+        
+        // Show current day's price
+        if (i === stockGameState.history.length) {
+          point.style.width = "12px";
+          point.style.height = "12px";
+          point.style.background = "#3498db";
+        }
+        
+        chart.appendChild(point);
+      });
+    }
+
+    function updateStockDisplay() {
+      document.getElementById("stockCash").textContent = stockGameState.cash.toFixed(2);
+      document.getElementById("stockShares").textContent = stockGameState.shares;
+      document.getElementById("stockValue").textContent = (stockGameState.shares * stockGameState.sharePrice).toFixed(2);
+      
+      const profit = (stockGameState.shares * stockGameState.sharePrice + stockGameState.cash - 1000).toFixed(2);
+      document.getElementById("stockProfit").textContent = profit;
+      
+      if (profit > 0) {
+        document.getElementById("stockProfit").style.color = "#2ecc71";
+      } else {
+        document.getElementById("stockProfit").style.color = "#e74c3c";
+      }
+    }
+
+    function stockAction(action) {
+      const currentDay = stockGameState.history.length;
+      if (currentDay >= stockData.length) return;
+      
+      const price = stockData[currentDay];
+      stockGameState.sharePrice = price;
+      
+      switch(action) {
+        case 'buy':
+          if (stockGameState.cash >= price) {
+            stockGameState.cash -= price;
+            stockGameState.shares += 1;
+            stockGameState.history.push({ action: 'buy', price });
+            document.getElementById("stockFeedback").textContent = `Bought 1 share at $${price.toFixed(2)}`;
+          } else {
+            document.getElementById("stockFeedback").textContent = "Not enough cash to buy!";
+          }
+          break;
+          
+        case 'sell':
+          if (stockGameState.shares > 0) {
+            stockGameState.cash += price;
+            stockGameState.shares -= 1;
+            stockGameState.history.push({ action: 'sell', price });
+            document.getElementById("stockFeedback").textContent = `Sold 1 share at $${price.toFixed(2)}`;
+          } else {
+            document.getElementById("stockFeedback").textContent = "No shares to sell!";
+          }
+          break;
+          
+        case 'hold':
+          stockGameState.history.push({ action: 'hold', price });
+          document.getElementById("stockFeedback").textContent = `Held at $${price.toFixed(2)}`;
+          break;
+      }
+      
+      updateStockDisplay();
+      renderStockChart();
+      
+      // Check if game is over
+      if (currentDay + 1 >= stockData.length) {
+        const profit = (stockGameState.shares * stockGameState.sharePrice + stockGameState.cash - 1000).toFixed(2);
+        let message = `Game over! Final profit: $${profit}. `;
+        
+        if (profit > 200) message += "🎉 Excellent trading!";
+        else if (profit > 0) message += "👍 Good job!";
+        else message += "💡 Better luck next time!";
+        
+        document.getElementById("stockFeedback").textContent = message;
+      }
+    }
+
+    // Loan Calculator Game
+    function startLoanGame() {
+      // Generate random loan scenario
+      const amount = [5000, 10000, 15000, 20000][Math.floor(Math.random() * 4)];
+      const term = [3, 5, 7, 10][Math.floor(Math.random() * 4)];
+      let rate;
+      
+      switch(currentDifficulty) {
+        case 'easy': rate = 5 + Math.random() * 3; break;
+        case 'medium': rate = 4 + Math.random() * 6; break;
+        case 'hard': rate = 3 + Math.random() * 10; break;
+      }
+      rate = Math.round(rate * 10) / 10;
+      
+      document.getElementById("loanAmount").value = amount;
+      document.getElementById("loanTerm").value = term;
+      document.getElementById("interestRate").value = rate;
+      
+      // Set target payment challenge (10-20% lower than actual payment)
+      const monthlyRate = rate / 100 / 12;
+      const payments = term * 12;
+      const actualPayment = amount * monthlyRate * Math.pow(1 + monthlyRate, payments) / (Math.pow(1 + monthlyRate, payments) - 1);
+      const targetPayment = Math.floor(actualPayment * (0.8 + Math.random() * 0.2));
+      
+      document.getElementById("targetPayment").textContent = targetPayment;
+      document.getElementById("loanFeedback").textContent = '';
+      document.getElementById("loanChallengeFeedback").textContent = '';
+      document.getElementById("loanChallenge").classList.add('hidden');
+    }
+
+    function calculateLoan() {
+      const amount = parseFloat(document.getElementById("loanAmount").value);
+      const term = parseFloat(document.getElementById("loanTerm").value);
+      const rate = parseFloat(document.getElementById("interestRate").value);
+      
+      const monthlyRate = rate / 100 / 12;
+      const payments = term * 12;
+      const payment = amount * monthlyRate * Math.pow(1 + monthlyRate, payments) / (Math.pow(1 + monthlyRate, payments) - 1);
+      
+      document.getElementById("loanFeedback").innerHTML = 
+        `Monthly Payment: <strong>$${payment.toFixed(2)}</strong> | Total Interest: <strong>$${(payment * payments - amount).toFixed(2)}</strong>`;
+      
+      document.getElementById("loanChallenge").classList.remove('hidden');
+    }
+
+    function checkLoanChallenge() {
+      const target = parseFloat(document.getElementById("targetPayment").textContent);
+      const payment = parseFloat(document.getElementById("loanFeedback").textContent.match(/\$\d+\.\d{2}/)[0].slice(1));
+      
+      if (payment <= target) {
+        document.getElementById("loanChallengeFeedback").textContent = "✅ Challenge Complete! You found a solution.";
+        document.getElementById("loanChallengeFeedback").style.color = "#2ecc71";
+      } else {
+        document.getElementById("loanChallengeFeedback").textContent = "❌ Keep trying! Adjust loan terms to lower the payment.";
+        document.getElementById("loanChallengeFeedback").style.color = "#e74c3c";
+      }
+    }
+
+    // Investment Risk Game
+    const investmentOptions = [
+      { name: "Savings Account", return: 2, risk: 1, description: "Safe but low returns" },
+      { name: "Bonds", return: 4, risk: 2, description: "Low risk, steady income" },
+      { name: "Index Funds", return: 7, risk: 3, description: "Diversified market exposure" },
+      { name: "Stocks", return: 10, risk: 5, description: "Higher risk, potential for growth" },
+      { name: "Real Estate", return: 8, risk: 4, description: "Tangible asset with income potential" },
+      { name: "Crypto", return: 20, risk: 8, description: "Highly volatile, speculative" },
+      { name: "Startups", return: 30, risk: 9, description: "High risk, high potential" },
+      { name: "Commodities", return: 5, risk: 6, description: "Hedge against inflation" },
+      { name: "Gold", return: 3, risk: 2, description: "Safe haven asset" }
+    ];
+
+    function startInvestmentGame() {
+      const container = document.getElementById("investmentOptions");
+      container.innerHTML = '';
+      
+      let optionsToUse = [...investmentOptions];
+      if (currentDifficulty === 'easy') optionsToUse = optionsToUse.slice(0, 6);
+      if (currentDifficulty === 'medium') optionsToUse = optionsToUse.slice(0, 8);
+      
+      // Reset allocation
+      allocatedAmount = 0;
+      document.getElementById("allocatedAmount").textContent = "0";
+      document.getElementById("expectedReturn").textContent = "0";
+      document.getElementById("investmentFeedback").textContent = '';
+      
+      optionsToUse.forEach(option => {
+        const div = document.createElement("div");
+        div.className = "investment-card";
+        div.innerHTML = `
+          <h3>${option.name}</h3>
+          <p>Return: ${option.return}%</p>
+          <p>Risk: ${'★'.repeat(option.risk)}</p>
+          <p><small>${option.description}</small></p>
+          <input type="number" id="invest-${option.name}" min="0" max="10000" value="0" step="100">
+        `;
+        
+        const input = div.querySelector("input");
+        input.addEventListener('input', updateAllocation);
+        
+        container.appendChild(div);
+      });
+    }
+
+    function updateAllocation() {
+      const inputs = document.querySelectorAll("#investmentOptions input");
+      let total = 0;
+      
+      inputs.forEach(input => {
+        total += parseInt(input.value) || 0;
+      });
+      
+      document.getElementById("allocatedAmount").textContent = total;
+      
+      // Calculate expected return
+      if (total > 0) {
+        let weightedReturn = 0;
+        inputs.forEach(input => {
+          const amount = parseInt(input.value) || 0;
+          const optionName = input.id.replace('invest-', '');
+          const option = investmentOptions.find(o => o.name === optionName);
+          if (option) {
+            weightedReturn += (amount / total) * option.return;
+          }
+        });
+        
+        document.getElementById("expectedReturn").textContent = weightedReturn.toFixed(1);
+      } else {
+        document.getElementById("expectedReturn").textContent = "0";
+      }
+    }
+
+    function evaluateInvestments() {
+      const allocated = parseInt(document.getElementById("allocatedAmount").textContent);
+      if (allocated !== 10000) {
+        document.getElementById("investmentFeedback").textContent = "Please allocate exactly $10,000.";
+        document.getElementById("investmentFeedback").style.color = "#e74c3c";
+        return;
+      }
+      
+      const inputs = document.querySelectorAll("#investmentOptions input");
+      let actualReturn = 0;
+      let message = "Simulation Results:\n";
+      
+      inputs.forEach(input => {
+        const amount = parseInt(input.value) || 0;
+        if (amount > 0) {
+          const optionName = input.id.replace('invest-', '');
+          const option = investmentOptions.find(o => o.name === optionName);
+          if (option) {
+            // Simulate actual return with some randomness based on risk
+            const volatility = option.risk * (Math.random() * 0.4 - 0.2); // -20% to +20% of risk
+            const thisReturn = option.return * (1 + volatility);
+            const gain = amount * thisReturn / 100;
+            
+            actualReturn += gain;
+            message += `${option.name}: $${gain.toFixed(2)} (${thisReturn.toFixed(1)}%)\n`;
+          }
+        }
+      });
+      
+      const totalReturn = (actualReturn / 10000 * 100).toFixed(1);
+      message += `\nTotal Return: $${actualReturn.toFixed(2)} (${totalReturn}%)`;
+      
+      if (actualReturn > 1000) {
+        message += "\n\n🎉 Excellent diversification!";
+      } else if (actualReturn > 0) {
+        message += "\n\n👍 Solid performance!";
+      } else {
+        message += "\n\n💡 Consider adjusting your risk profile.";
+      }
+      
+      document.getElementById("investmentFeedback").textContent = message;
+      document.getElementById("investmentFeedback").style.color = "#2c3e50";
+      document.getElementById("investmentFeedback").style.textAlign = "left";
+      document.getElementById("investmentFeedback").style.whiteSpace = "pre-wrap";
+    }
+
+    // Financial Quiz Game
+    const quizQuestions = [
+      {
+        question: "What is compound interest?",
+        options: [
+          "Interest calculated only on the original principal",
+          "Interest calculated on both principal and accumulated interest",
+          "A fixed interest rate that never changes",
+          "Interest that decreases over time"
+        ],
+        answer: 1
+      },
+      {
+        question: "Which of these is NOT a good way to build credit?",
+        options: [
+          "Paying bills on time",
+          "Using a secured credit card",
+          "Maxing out your credit cards each month",
+          "Keeping old accounts open"
+        ],
+        answer: 2
+      },
+      {
+        question: "What's the 50/30/20 budget rule?",
+        options: [
+          "50% income, 30% expenses, 20% savings",
+          "50% needs, 30% wants, 20% savings",
+          "50% spending, 30% investing, 20% saving",
+          "50% bills, 30% food, 20% entertainment"
+        ],
+        answer: 1
+      },
+      {
+        question: "What does APR stand for?",
+        options: [
+          "Annual Payment Rate",
+          "Annual Percentage Rate",
+          "Average Payment Return",
+          "Automatic Payment Reduction"
+        ],
+        answer: 1
+      },
+      {
+        question: "Which investment typically has the highest risk?",
+        options: [
+          "Savings account",
+          "Government bonds",
+          "Index funds",
+          "Individual stocks"
+        ],
+        answer: 3
+      },
+      {
+        question: "What's an emergency fund for?",
+        options: [
+          "Unexpected expenses like car repairs",
+          "Vacation savings",
+          "Investing in the stock market",
+          "Buying luxury items"
+        ],
+        answer: 0
+      },
+      {
+        question: "What's the power of compounding?",
+        options: [
+          "Money grows faster over time with reinvested earnings",
+          "Interest rates compound during inflation",
+          "Banks compound fees on late payments",
+          "Your debt compounds when you miss payments"
+        ],
+        answer: 0
+      },
+      {
+        question: "What's a good debt-to-income ratio?",
+        options: [
+          "10% or less",
+          "30% or less",
+          "50% or less",
+          "70% or less"
+        ],
+        answer: 1
+      },
+      {
+        question: "What does diversification mean in investing?",
+        options: [
+          "Putting all your money in one stock",
+          "Spreading investments across different assets",
+          "Investing only in what you know",
+          "Buying low and selling high"
+        ],
+        answer: 1
+      },
+      {
+        question: "What's the first step in creating a budget?",
+        options: [
+          "Track your income and expenses",
+          "Cut all discretionary spending",
+          "Open a savings account",
+          "Invest in the stock market"
+        ],
+        answer: 0
+      }
+    ];
+
+    let currentQuestion = 0;
+    let quizScore = 0;
+    let quizTimeLeft = 60;
+
+    function startQuizGame() {
+      currentQuestion = 0;
+      quizScore = 0;
+      quizTimeLeft = 60;
+      
+      document.getElementById("quizScore").textContent = "0";
+      document.getElementById("quizTimer").textContent = "60";
+      document.getElementById("nextBtn").classList.add('hidden');
+      document.getElementById("quizFeedback").textContent = '';
+      
+      // Start timer
+      gameTimers['quiz'] = setInterval(() => {
+        quizTimeLeft--;
+        document.getElementById("quizTimer").textContent = quizTimeLeft;
+        if (quizTimeLeft <= 0) {
+          endQuiz();
+        }
+      }, 1000);
+      
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (currentQuestion >= quizQuestions.length) {
+        endQuiz();
+        return;
+      }
+      
+      const question = quizQuestions[currentQuestion];
+      document.getElementById("quizQuestion").textContent = question.question;
+      
+      const optionsContainer = document.getElementById("quizOptions");
+      optionsContainer.innerHTML = '';
+      
+      question.options.forEach((option, i) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.textContent = option;
+        div.onclick = () => checkAnswer(i);
+        optionsContainer.appendChild(div);
+      });
+    }
+
+    function checkAnswer(selectedIndex) {
+      const question = quizQuestions[currentQuestion];
+      const options = document.querySelectorAll("#quizOptions .card");
+      
+      // Disable all options
+      options.forEach(option => {
+        option.onclick = null;
+      });
+      
+      // Highlight correct and incorrect
+      options[question.answer].style.background = "#2ecc71";
+      if (selectedIndex !== question.answer) {
+        options[selectedIndex].style.background = "#e74c3c";
+      } else {
+        quizScore++;
+        document.getElementById("quizScore").textContent = quizScore;
+      }
+      
+      document.getElementById("nextBtn").classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      document.getElementById("nextBtn").classList.add('hidden');
+      showQuestion();
+    }
+
+    function endQuiz() {
+      clearInterval(gameTimers['quiz']);
+      
+      document.getElementById("quizQuestion").textContent = "Quiz Complete!";
+      document.getElementById("quizOptions").innerHTML = '';
+      document.getElementById("nextBtn").classList.add('hidden');
+      
+      let message = `Your score: ${quizScore}/${quizQuestions.length}. `;
+      if (quizScore >= 9) message += "🎯 Financial Wizard!";
+      else if (quizScore >= 7) message += "👍 Solid Knowledge!";
+      else if (quizScore >= 5) message += "💡 Keep Learning!";
+      else message += "📚 Time to Study!";
+      
+      document.getElementById("quizFeedback").textContent = message;
+    }
+  </script>
+</body>
+</html>
